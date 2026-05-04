@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Accessible Add-to-Cart Patterns</title>
+<title>Accessible Add-to-Cart Patterns & Button-to-Stepper Conversion</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 
@@ -28,6 +28,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 .skip-link:focus{position:fixed;top:10px;left:10px;width:auto;height:auto;padding:12px 20px;background:var(--blue);color:#fff;font-weight:700;border-radius:var(--r);text-decoration:none;z-index:9999;box-shadow:var(--sh-lg);}
 
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+[hidden]{display:none!important;}
 
 /* ── HEADER ── */
 .site-header{background:#fff;border-bottom:1px solid var(--g200);position:sticky;top:0;z-index:300;box-shadow:var(--sh);}
@@ -173,6 +175,29 @@ main{max-width:1200px;margin:0 auto;padding:36px 20px 80px;}
   .cart-btn span:not(.cart-badge){display:none;}
 }
 
+/* ── STEPPER (CARD 5) ── */
+.stepper{display:flex;align-items:center;gap:8px;margin-top:10px;}
+.stepper-btn{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:var(--r);border:2px solid;background:#fff;cursor:pointer;transition:background .15s,border-color .15s;}
+.stepper-btn:disabled{opacity:.5;cursor:not-allowed;}
+.stepper-btn:focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
+.btn-remove{color:var(--red);border-color:#fecaca;}
+.btn-remove:hover:not(:disabled){background:var(--red-lt);border-color:#f87171;}
+.btn-decrease{color:var(--blue-dk);border-color:#c7d2fe;}
+.btn-decrease:hover:not(:disabled){background:var(--blue-lt);border-color:#818cf8;}
+.btn-increase{color:#fff;background:var(--blue);border-color:var(--blue);}
+.btn-increase:hover:not(:disabled){background:var(--blue-dk);border-color:var(--blue-dk);}
+.btn-increase.at-max{background:var(--g100);border-color:var(--g200);color:var(--g400);cursor:not-allowed;}
+.qty-input{flex:1;min-width:0;height:44px;text-align:center;font-family:inherit;font-size:1.15rem;font-weight:700;color:var(--g900);background:#fff;border:2px solid var(--g200);border-radius:var(--r);font-variant-numeric:tabular-nums;}
+.qty-input:focus,.qty-input:focus-visible{outline:3px solid var(--blue);outline-offset:2px;}
+.qty-input:disabled{background:var(--g50);opacity:.6;}
+input[type="number"]::-webkit-outer-spin-button,input[type="number"]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+input[type="number"]{-moz-appearance:textfield;appearance:textfield;}
+.error-box{display:none;align-items:flex-start;gap:8px;background:var(--red-lt);border:1px solid #fecaca;border-radius:6px;padding:8px 10px;font-size:.8rem;color:#b91c1c;margin-top:10px;}
+.error-box.is-visible{display:flex;}
+.v-hidden{display:none!important;}
+.error-box svg{flex-shrink:0;margin-top:1px;}
+.spin{animation:spin .65s linear infinite;}
+
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
 }
@@ -203,8 +228,8 @@ main{max-width:1200px;margin:0 auto;padding:36px 20px 80px;}
 <!-- ── MAIN ── -->
 <main id="main">
   <div class="page-hero">
-    <h1>Accessible Add-to-Cart Patterns</h1>
-    <p>All four real-world patterns with correct ARIA live regions, loading states and focus management. The <span class="highlight">● purple boxes</span> show what the hidden live region announces to screen readers in real time.</p>
+    <h1>Accessible Add-to-Cart Patterns & Button-to-Stepper</h1>
+    <p>Five real-world patterns with correct ARIA live regions, loading states and focus management. Patterns 1–4 cover ATC confirmation. Pattern 5 demonstrates the button-to-stepper conversion. The <span class="highlight">● purple boxes</span> show what the hidden live region announces to screen readers in real time.</p>
   </div>
 
   <div class="product-grid">
@@ -399,6 +424,84 @@ main{max-width:1200px;margin:0 auto;padding:36px 20px 80px;}
         </div>
         <div class="sim-row">
           <label><input type="checkbox" id="err-4"> Simulate network error</label>
+        </div>
+      </div>
+    </article>
+
+    <!-- ═══════════════════════════════════════════════════════
+         CARD 5 — Button-to-Stepper Conversion
+    ═══════════════════════════════════════════════════════ -->
+    <article class="card">
+      <div class="card-img" aria-hidden="true">
+        <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+          <rect width="280" height="200" fill="#ecfdf5"/>
+          <rect x="40" y="70" width="60" height="60" rx="10" fill="#6ee7b7"/>
+          <path d="M55 100l10 10 20-20" stroke="#065f46" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M120 100 l20 0" stroke="#9ca3af" stroke-width="2" stroke-dasharray="4 4"/>
+          <rect x="160" y="80" width="36" height="36" rx="8" fill="#a7f3d0"/>
+          <line x1="178" y1="90" x2="178" y2="106" stroke="#065f46" stroke-width="2.5"/>
+          <line x1="170" y1="98" x2="186" y2="98" stroke="#065f46" stroke-width="2.5"/>
+          <rect x="200" y="80" width="36" height="36" rx="8" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1.5"/>
+          <text x="218" y="103" text-anchor="middle" font-size="14" font-weight="700" fill="#065f46">1</text>
+          <rect x="88" y="156" width="104" height="8" rx="4" fill="#a7f3d0"/>
+          <rect x="104" y="169" width="76" height="6" rx="3" fill="#d1fae5"/>
+        </svg>
+        <span class="pattern-chip">Pattern 5 — Button to Stepper</span>
+      </div>
+      <div class="card-body">
+        <p class="card-cat">Footwear</p>
+        <h2 class="card-name">Blue Running Shoes</h2>
+        <p class="card-desc">Lightweight mesh upper, responsive cushioning, fits true to size.</p>
+        <p class="card-price">$89.99</p>
+
+        <div id="atc-area-5" tabindex="-1" style="outline:none;">
+        <button class="atc-btn" id="atc-5"
+          aria-label="Add to Cart, Blue Running Shoes"
+          data-n="5" data-product="Blue Running Shoes" data-price="$89.99">
+          <svg class="btn-ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true" focusable="false">
+            <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/>
+          </svg>
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="btn-text">Add to Cart</span>
+        </button>
+
+        <div id="stepper-5" class="stepper v-hidden" role="group"
+             aria-label="Quantity of Blue Running Shoes in cart"
+             aria-hidden="true" tabindex="-1">
+          <button id="s5-remove" class="stepper-btn btn-remove"
+                  aria-label="Remove Blue Running Shoes from cart">
+            <svg class="s5-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            <svg class="s5-spin spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" hidden><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          </button>
+          <button id="s5-decrease" class="stepper-btn btn-decrease v-hidden"
+                  aria-label="Decrease quantity of Blue Running Shoes">
+            <svg class="s5-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg class="s5-spin spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" hidden><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          </button>
+          <input id="s5-qty" class="qty-input" type="number" min="1" max="10" step="1" value="1"
+                 aria-label="Quantity, Blue Running Shoes"/>
+          <button id="s5-increase" class="stepper-btn btn-increase"
+                  aria-label="Increase quantity of Blue Running Shoes">
+            <svg class="s5-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg class="s5-spin spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" hidden><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          </button>
+        </div>
+        </div><!-- /atc-area-5 -->
+
+        <div id="error-box-5" class="error-box" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="error-text-5"></span>
+        </div>
+
+        <div class="lrm-label">Live region — screen reader announcement</div>
+        <div class="lrm" id="lrm-5" aria-hidden="true"></div>
+
+        <div class="ibox note">
+          <strong>How it works</strong>
+          ATC button transforms into a quantity stepper. Two-stage announcement: "Adding to cart" fires immediately, then "[Product] added. Quantity stepper now available." after DOM settles. Focus moves to the quantity input. At qty=1, decrement becomes "Remove" (semantically distinct). Removing returns focus to the ATC button. No &lt;form&gt; wrapper.
+        </div>
+        <div class="sim-row">
+          <label><input type="checkbox" id="err-5"> Simulate network error</label>
         </div>
       </div>
     </article>
@@ -798,6 +901,178 @@ async function p4(btn) {
 /* ═══════════════════════════════════════════════════════
    WIRE UP ALL ATC BUTTONS
 ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   PATTERN 5 — Button-to-Stepper Conversion
+═══════════════════════════════════════════════════════ */
+const S5 = {
+  qty: 0, loading: 'none', draft: null, toggle: false, MAX: 10,
+  NAME: 'Blue Running Shoes',
+  el: {
+    btn: () => document.getElementById('atc-5'),
+    stepper: () => document.getElementById('stepper-5'),
+    remove: () => document.getElementById('s5-remove'),
+    decrease: () => document.getElementById('s5-decrease'),
+    increase: () => document.getElementById('s5-increase'),
+    input: () => document.getElementById('s5-qty'),
+    errBox: () => document.getElementById('error-box-5'),
+    errText: () => document.getElementById('error-text-5'),
+  },
+  errMsg: '',
+
+  announce(msg, urgent) {
+    announce(msg, urgent);
+    setMirror(5, `[${urgent ? 'assertive' : 'polite'}] ${msg}`);
+  },
+
+  setSpinner(btnId, isLoading) {
+    const btn = document.getElementById(btnId);
+    const icons = btn.querySelectorAll('.s5-icon');
+    const spins = btn.querySelectorAll('.s5-spin');
+    icons.forEach(i => i.hidden = isLoading);
+    spins.forEach(s => s.hidden = !isLoading);
+  },
+
+  render() {
+    const {qty, loading, draft, MAX, NAME, errMsg} = S5;
+    const isLoading = loading !== 'none';
+    const btn = S5.el.btn(), stepper = S5.el.stepper();
+    const remove = S5.el.remove(), decrease = S5.el.decrease();
+    const increase = S5.el.increase(), input = S5.el.input();
+    const errBox = S5.el.errBox(), errText = S5.el.errText();
+
+    if (errMsg) { errText.textContent = errMsg; errBox.classList.add('is-visible'); }
+    else { errBox.classList.remove('is-visible'); errText.textContent = ''; }
+
+    if (qty === 0) {
+      btn.classList.remove('v-hidden'); btn.removeAttribute('aria-hidden');
+      stepper.classList.add('v-hidden'); stepper.setAttribute('aria-hidden', 'true');
+      btn.disabled = isLoading;
+      const isAdding = loading === 'add';
+      btn.querySelector('.btn-ico').hidden = isAdding;
+      btn.querySelector('.spinner').style.display = isAdding ? 'block' : 'none';
+      btn.querySelector('.btn-text').textContent = isAdding ? 'Adding…' : 'Add to Cart';
+      btn.setAttribute('aria-label', isAdding
+        ? `Adding ${NAME} to cart` : `Add to Cart, ${NAME}`);
+      if (isAdding) btn.setAttribute('aria-busy', 'true');
+      else btn.removeAttribute('aria-busy');
+    } else {
+      btn.classList.add('v-hidden'); btn.setAttribute('aria-hidden', 'true');
+      stepper.classList.remove('v-hidden'); stepper.removeAttribute('aria-hidden');
+      input.value = draft !== null ? draft : qty;
+      input.disabled = isLoading;
+      if (qty === 1) {
+        remove.classList.remove('v-hidden'); decrease.classList.add('v-hidden');
+        remove.disabled = isLoading;
+        S5.setSpinner('s5-remove', loading === 'remove');
+      } else {
+        remove.classList.add('v-hidden'); decrease.classList.remove('v-hidden');
+        decrease.disabled = isLoading;
+        S5.setSpinner('s5-decrease', loading === 'decrease');
+      }
+      increase.disabled = isLoading || qty >= MAX;
+      if (qty >= MAX) increase.classList.add('at-max');
+      else increase.classList.remove('at-max');
+      S5.setSpinner('s5-increase', loading === 'increase');
+    }
+  },
+
+  async run(type, fn) {
+    S5.loading = type; S5.errMsg = ''; S5.render();
+    try { await fn(); }
+    catch (e) { S5.errMsg = e.message; }
+    finally { S5.loading = 'none'; S5.render(); }
+  },
+
+  handleAdd() {
+    if (S5.loading !== 'none') return;
+    S5.run('add', async () => {
+      S5.announce('Adding to cart', true);
+      await fakeAPI(document.getElementById('err-5').checked);
+      S5.qty = 1; bumpCart(); S5.render();
+      await new Promise(r => setTimeout(r, 100));
+      S5.el.stepper().focus();
+      await new Promise(r => setTimeout(r, 100));
+      S5.el.input().focus();
+      await new Promise(r => setTimeout(r, 150));
+      S5.announce(`${S5.NAME} added to cart. 1 item. Quantity stepper now available.`, false);
+    });
+  },
+
+  handleIncrease() {
+    if (S5.loading !== 'none' || S5.qty >= S5.MAX) return;
+    S5.run('increase', async () => {
+      S5.announce('Updating cart', false);
+      await fakeAPI(document.getElementById('err-5').checked);
+      S5.qty = Math.min(S5.qty + 1, S5.MAX); S5.render();
+      await new Promise(r => setTimeout(r, 100));
+      S5.announce(S5.qty === S5.MAX
+        ? `${S5.qty} items in cart. Maximum quantity reached.`
+        : `${S5.qty} items in cart.`, false);
+    });
+  },
+
+  handleDecrease() {
+    if (S5.loading !== 'none' || S5.qty <= 1) return;
+    S5.run('decrease', async () => {
+      S5.announce('Updating cart', false);
+      await fakeAPI(document.getElementById('err-5').checked);
+      S5.qty--; S5.render();
+      await new Promise(r => setTimeout(r, 100));
+      S5.announce(`${S5.qty} item${S5.qty !== 1 ? 's' : ''} in cart.`, false);
+    });
+  },
+
+  handleRemove() {
+    if (S5.loading !== 'none') return;
+    S5.run('remove', async () => {
+      S5.announce('Removing from cart', true);
+      await fakeAPI(document.getElementById('err-5').checked);
+      S5.qty = 0; S5.render();
+      const atcArea = document.getElementById('atc-area-5');
+      await new Promise(r => setTimeout(r, 100));
+      atcArea.focus();
+      await new Promise(r => setTimeout(r, 100));
+      S5.el.btn().focus();
+      await new Promise(r => setTimeout(r, 100));
+      S5.announce(`${S5.NAME} removed from cart.`, false);
+    });
+  }
+};
+
+// Wire stepper buttons
+document.getElementById('s5-remove').addEventListener('click', () => S5.handleRemove());
+document.getElementById('s5-decrease').addEventListener('click', () => S5.handleDecrease());
+document.getElementById('s5-increase').addEventListener('click', () => S5.handleIncrease());
+
+// Wire input
+const s5Input = document.getElementById('s5-qty');
+s5Input.addEventListener('input', e => { if (S5.loading === 'none') S5.draft = e.target.value; });
+s5Input.addEventListener('keydown', e => {
+  if (S5.loading !== 'none') { e.preventDefault(); return; }
+  if (e.key === 'ArrowUp') { e.preventDefault(); S5.handleIncrease(); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); S5.qty > 1 ? S5.handleDecrease() : S5.handleRemove(); }
+  else if (e.key === 'Enter') s5Input.blur();
+});
+s5Input.addEventListener('blur', () => {
+  if (S5.draft === null || S5.loading !== 'none') { S5.draft = null; return; }
+  const parsed = parseInt(S5.draft, 10); S5.draft = null;
+  if (isNaN(parsed) || parsed < 1) { S5.render(); return; }
+  const clamped = Math.min(parsed, S5.MAX);
+  if (clamped === S5.qty) { S5.render(); return; }
+  S5.run('update', async () => {
+    S5.announce('Updating cart', false);
+    await fakeAPI(document.getElementById('err-5').checked);
+    S5.qty = clamped; S5.render();
+    await new Promise(r => setTimeout(r, 100));
+    S5.announce(`${clamped} item${clamped !== 1 ? 's' : ''} in cart.`, false);
+  });
+});
+
+S5.render();
+
+/* ═══════════════════════════════════════════════════════
+   WIRE UP ALL ATC BUTTONS
+═══════════════════════════════════════════════════════ */
 document.querySelectorAll('.atc-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const n = btn.dataset.n;
@@ -805,6 +1080,7 @@ document.querySelectorAll('.atc-btn').forEach(btn => {
     else if (n === '2') p2(btn);
     else if (n === '3') p3(btn);
     else if (n === '4') p4(btn);
+    else if (n === '5') S5.handleAdd();
   });
 });
 </script>
