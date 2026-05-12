@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accessibility Tutorial</title>
+<style>
+:root{--pri:#6366f1;--pri-d:#4f46e5;--pri-l:#eef2ff;--suc:#10b981;--suc-l:#d1fae5;--war:#f59e0b;--war-l:#fef3c7;--err:#ef4444;--err-l:#fee2e2;--side:#1e1b4b;--side-h:#312e81;--side-a:#4f46e5;--bg:#f8fafc;--sur:#fff;--txt:#0f172a;--muted:#64748b;--bdr:#e2e8f0;--r:8px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:16px;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;min-height:100vh;}
+:focus-visible{outline:3px solid var(--pri);outline-offset:2px;border-radius:3px;}
+.hidden{display:none!important;}
+
+/* WELCOME */
+.welcome{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e1b4b 0%,#4f46e5 60%,#7c3aed 100%);padding:1.5rem;}
+.wcard{background:#fff;border-radius:16px;padding:2.5rem 2rem;max-width:620px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.3);}
+.wcard .wi{font-size:3.5rem;margin-bottom:.75rem;}
+.wcard h1{font-size:1.9rem;font-weight:800;margin-bottom:.4rem;}
+.wcard>p{color:var(--muted);margin-bottom:1.5rem;}
+.wtopics{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:1.5rem;}
+.wtopic{background:var(--pri-l);border-radius:var(--r);padding:.9rem .5rem;}
+.wtopic .ti{font-size:1.6rem;margin-bottom:.3rem;}
+.wtopic p{font-size:.8rem;color:var(--pri-d);font-weight:600;margin:0;}
+.wmeta{font-size:.82rem;color:var(--muted);margin-bottom:1.5rem!important;}
+.btn-start{background:var(--pri);color:#fff;border:none;padding:.9rem 2.5rem;font-size:1.05rem;font-weight:700;border-radius:50px;cursor:pointer;transition:background .2s,transform .1s;display:inline-flex;align-items:center;gap:.4rem;}
+.btn-start:hover{background:var(--pri-d);transform:translateY(-1px);}
+.btn-start:active{transform:translateY(0);}
+
+/* LAYOUT */
+.app{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:290px;background:var(--side);color:#a5b4fc;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;transition:width .3s ease;}
+.sidebar.collapsed{width:0;}
+.sh{padding:1rem;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:space-between;}
+.sh-title{font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:#fff;}
+.sh-close{background:none;border:1px solid rgba(165,180,252,.25);border-radius:var(--r);padding:.3rem .55rem;cursor:pointer;color:rgba(165,180,252,.7);font-size:.9rem;}
+.sp{padding:.65rem 1rem;border-bottom:1px solid rgba(255,255,255,.1);}
+.sp-lbl{display:flex;justify-content:space-between;font-size:.72rem;color:#a5b4fc;margin-bottom:.35rem;}
+.sp-bar{height:4px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden;}
+.sp-fill{height:100%;background:var(--pri);border-radius:2px;transition:width .4s ease;}
+.snav{flex:1;overflow-y:auto;padding:.4rem 0;}
+.snav::-webkit-scrollbar{width:3px;}
+.snav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:2px;}
+.chdr{padding:.6rem 1rem .15rem;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(165,180,252,.5);margin-top:.4rem;}
+.litem{display:flex;align-items:center;gap:.65rem;padding:.55rem 1rem;cursor:pointer;transition:background .15s;border:none;background:none;color:#a5b4fc;width:100%;text-align:left;font-size:.85rem;}
+.litem:hover{background:var(--side-h);color:#fff;}
+.litem.active{background:var(--side-a);color:#fff;}
+.litem.done{color:rgba(165,180,252,.75);}
+.lstatus{width:20px;height:20px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.62rem;border:2px solid rgba(165,180,252,.25);}
+.litem.done .lstatus{background:var(--suc);border-color:var(--suc);color:#fff;}
+.litem.active .lstatus{border-color:#fff;background:#fff;color:var(--pri-d);}
+.ltext{flex:1;line-height:1.3;font-size:.82rem;}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.mhdr{padding:.85rem 1.25rem;background:var(--sur);border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:.85rem;position:sticky;top:0;z-index:10;}
+.mtog{background:none;border:1px solid var(--bdr);border-radius:var(--r);padding:.35rem .55rem;cursor:pointer;font-size:.95rem;color:var(--txt);}
+.mhdr-info{flex:1;}
+.mhdr-ch{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.mhdr-t{font-size:.95rem;font-weight:700;color:var(--txt);}
+.mhdr-p{font-size:.72rem;color:var(--muted);white-space:nowrap;}
+.lbody{flex:1;padding:2rem;max-width:800px;margin:0 auto;width:100%;}
+.lfooter{padding:1.25rem 2rem;border-top:1px solid var(--bdr);background:var(--sur);display:flex;align-items:center;justify-content:space-between;gap:1rem;position:sticky;bottom:0;}
+
+/* CONTENT */
+.lcontent{animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.lcontent h2{font-size:1.65rem;font-weight:800;margin-bottom:.4rem;}
+.lmeta{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:1.25rem;}
+.badge{padding:.2rem .55rem;border-radius:20px;font-size:.72rem;font-weight:600;}
+.bc{background:var(--pri-l);color:var(--pri-d);}
+.be{background:#d1fae5;color:#065f46;}
+.bm{background:var(--war-l);color:#92400e;}
+.bh{background:var(--err-l);color:#991b1b;}
+.mob-badge{display:inline-flex;align-items:center;gap:.25rem;background:var(--side);color:#a5b4fc;padding:.2rem .55rem;border-radius:20px;font-size:.72rem;font-weight:600;}
+.intro{background:var(--sur);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem;border:1px solid var(--bdr);box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.intro p{margin-bottom:.6rem;}
+.intro p:last-child{margin-bottom:0;}
+.stitle{font-size:.9rem;font-weight:700;color:var(--txt);margin:1.4rem 0 .65rem;padding-bottom:.4rem;border-bottom:2px solid var(--bdr);}
+kbd{display:inline-block;background:#1e293b;color:#fff;border-radius:5px;padding:.12rem .45rem;font-family:monospace;font-size:.82rem;font-weight:600;border-bottom:3px solid #0f172a;white-space:nowrap;}
+code{background:#f1f5f9;color:#7c3aed;padding:.1rem .35rem;border-radius:4px;font-size:.85rem;}
+.ibox{border-radius:var(--r);padding:.9rem 1rem;margin-bottom:1rem;display:flex;gap:.65rem;border:1px solid;}
+.ibox.tip{background:#eff6ff;border-color:#bfdbfe;}
+.ibox.warn{background:var(--war-l);border-color:#fcd34d;}
+.ibox.note{background:var(--pri-l);border-color:#c7d2fe;}
+.ibox-ic{font-size:1.1rem;flex-shrink:0;margin-top:.1rem;}
+.ibox-c{font-size:.85rem;color:var(--txt);}
+.ibox-c strong{color:#1e293b;}
+
+/* COMMANDS & GESTURES */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.65rem;margin-bottom:1.25rem;}
+.ccard{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:.9rem;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.ccard .ckeys{display:flex;flex-wrap:wrap;gap:.2rem;margin-bottom:.4rem;align-items:center;}
+.ccard .cdesc{font-size:.82rem;color:var(--muted);}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.85rem;margin-bottom:1.25rem;}
+.gcard{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:1rem;display:flex;gap:.85rem;align-items:flex-start;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.gic{font-size:1.6rem;flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:var(--pri-l);border-radius:var(--r);}
+.ginf h4{font-size:.875rem;font-weight:700;margin-bottom:.2rem;}
+.ginf p{font-size:.8rem;color:var(--muted);}
+
+/* EXERCISE */
+.exarea{background:var(--sur);border:2px solid var(--pri);border-radius:var(--r);margin-bottom:1.25rem;overflow:hidden;}
+.exhdr{background:var(--pri-l);padding:.65rem 1.1rem;border-bottom:2px solid var(--pri);display:flex;align-items:center;gap:.45rem;}
+.exhdr h3{font-size:.83rem;font-weight:700;color:var(--pri-d);flex:1;}
+.exbody{padding:1.25rem;}
+.extask{background:#fff7ed;border:1px solid #fed7aa;border-radius:var(--r);padding:.85rem 1rem;margin-bottom:1rem;}
+.extask p{font-size:.875rem;color:#7c2d12;margin:0;}
+.extask strong{color:#9a3412;}
+.keyind{display:flex;align-items:center;gap:.45rem;margin-bottom:.85rem;font-size:.78rem;color:var(--muted);}
+.kdisp{background:#1e293b;color:#fff;padding:.15rem .55rem;border-radius:5px;font-family:monospace;font-size:.82rem;min-width:65px;text-align:center;border-bottom:3px solid #0f172a;transition:all .1s;}
+.kdisp.pressed{background:var(--pri);border-bottom-color:var(--pri-d);transform:translateY(2px);}
+.sandbox{border:2px dashed var(--bdr);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem;min-height:80px;}
+.exbtns{display:flex;flex-wrap:wrap;gap:.65rem;}
+.exbtn{padding:.55rem 1.1rem;border-radius:var(--r);border:2px solid var(--bdr);background:var(--sur);color:var(--txt);font-size:.875rem;cursor:pointer;transition:all .15s;font-family:inherit;}
+.exbtn:hover{border-color:var(--pri);color:var(--pri);}
+.exbtn.target{border-color:var(--war);background:var(--war-l);}
+.exbtn.activated{border-color:var(--suc);background:var(--suc-l);color:#065f46;}
+.steplist{list-style:none;margin-bottom:.85rem;}
+.steplist li{display:flex;align-items:center;gap:.5rem;padding:.35rem 0;font-size:.83rem;color:var(--muted);border-bottom:1px solid var(--bdr);}
+.steplist li:last-child{border-bottom:none;}
+.steplist li::before{content:'○';flex-shrink:0;color:var(--muted);}
+.steplist li.done{color:var(--suc);}
+.steplist li.done::before{content:'✓';color:var(--suc);font-weight:700;}
+.exstatus{border-radius:var(--r);padding:.65rem .9rem;display:flex;align-items:center;gap:.65rem;font-size:.83rem;}
+.exstatus.pending{background:var(--bg);border:1px solid var(--bdr);color:var(--muted);}
+.exstatus.success{background:var(--suc-l);border:1px solid #6ee7b7;color:#065f46;}
+.exstatus.error{background:var(--err-l);border:1px solid #fca5a5;color:#7f1d1d;}
+.exstatus.hint{background:var(--war-l);border:1px solid #fcd34d;color:#78350f;}
+.stic{font-size:1rem;flex-shrink:0;}
+.skip-link{font-size:.78rem;color:var(--muted);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;margin-top:.5rem;display:inline-block;}
+.skip-link:hover{color:var(--pri);}
+
+/* FORM EXERCISE */
+.exform{display:flex;flex-direction:column;gap:.85rem;}
+.exfg{display:flex;flex-direction:column;gap:.2rem;}
+.exfg label{font-size:.83rem;font-weight:600;}
+.exfg input,.exfg select,.exfg textarea{padding:.45rem .7rem;border:2px solid var(--bdr);border-radius:var(--r);font-size:.875rem;transition:border-color .15s;font-family:inherit;}
+.exfg input:focus,.exfg select:focus{border-color:var(--pri);outline:none;box-shadow:0 0 0 3px rgba(99,102,241,.15);}
+.cbg{display:flex;align-items:center;gap:.5rem;}
+.cbg input[type=checkbox]{width:17px;height:17px;cursor:pointer;}
+.radio-grp{display:flex;flex-direction:column;gap:.4rem;}
+.ropt{display:flex;align-items:center;gap:.65rem;padding:.5rem .7rem;border:2px solid var(--bdr);border-radius:var(--r);cursor:pointer;transition:all .15s;}
+.ropt:focus-within{border-color:var(--pri);background:var(--pri-l);}
+
+/* TABLE EXERCISE */
+.tbl-wrap{overflow-x:auto;}
+.dtbl{width:100%;border-collapse:collapse;font-size:.85rem;}
+.dtbl th{background:var(--pri-l);color:var(--pri-d);font-weight:700;padding:.55rem .7rem;text-align:left;border:1px solid var(--bdr);}
+.dtbl td{padding:.45rem .7rem;border:1px solid var(--bdr);transition:background .15s;}
+.dtbl tr:nth-child(even) td{background:var(--bg);}
+.dtbl td:focus{outline:3px solid var(--pri);background:var(--pri-l)!important;}
+.dtbl caption{font-weight:700;text-align:left;padding:.4rem 0;font-size:.83rem;color:var(--muted);caption-side:top;}
+
+/* MODAL */
+.modback{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem;}
+.moddlg{background:var(--sur);border-radius:12px;padding:1.75rem;max-width:380px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.25);}
+.moddlg h3{font-size:1.15rem;font-weight:700;margin-bottom:.6rem;}
+.moddlg p{color:var(--muted);margin-bottom:1.25rem;font-size:.9rem;}
+
+/* BUTTONS */
+.btn{padding:.55rem 1.2rem;border-radius:var(--r);font-size:.88rem;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:.35rem;border:2px solid transparent;font-family:inherit;}
+.btnp{background:var(--pri);color:#fff;}
+.btnp:hover{background:var(--pri-d);}
+.btns{background:transparent;border-color:var(--bdr);color:var(--txt);}
+.btns:hover{border-color:var(--pri);color:var(--pri);}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* CELEBRATE */
+@keyframes celebrate{0%{transform:scale(1);}50%{transform:scale(1.04);}100%{transform:scale(1);}}
+.exarea.done{animation:celebrate .4s ease;border-color:var(--suc);}
+.exarea.done .exhdr{background:var(--suc-l);border-color:var(--suc);}
+.exarea.done .exhdr h3{color:#065f46;}
+
+/* VO PRACTICE CHECKLIST */
+.vo-practice{background:var(--sur);border:2px solid var(--pri);border-radius:var(--r);margin-bottom:1.25rem;overflow:hidden;}
+.vo-steps{list-style:none;padding:.5rem 1.25rem;}
+.vo-step{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.6rem 0;border-bottom:1px solid var(--bdr);}
+.vo-step:last-child{border-bottom:none;}
+.vo-step-info{display:flex;align-items:center;gap:.65rem;flex:1;}
+.vo-step-cmd{background:#1e293b;color:#fff;border-radius:5px;padding:.12rem .45rem;font-family:monospace;font-size:.78rem;font-weight:600;border-bottom:3px solid #0f172a;white-space:nowrap;flex-shrink:0;}
+.vo-step-label{font-size:.83rem;color:var(--txt);}
+.vo-check-btn{background:var(--sur);border:2px solid var(--bdr);border-radius:var(--r);padding:.3rem .75rem;font-size:.78rem;font-weight:600;cursor:pointer;color:var(--muted);transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.vo-check-btn:hover{border-color:var(--suc);color:var(--suc);}
+.vo-check-btn:disabled{opacity:.4;cursor:not-allowed;}
+.vo-step-done .vo-step-label{color:var(--suc);text-decoration:line-through;}
+.vo-step-done .vo-step-cmd{background:var(--suc);border-bottom-color:#059669;}
+
+/* MOBILE */
+@media(max-width:768px){
+  .sidebar{position:fixed;top:0;left:0;height:100vh;z-index:50;transform:translateX(-100%);transition:transform .3s ease;width:280px;}
+  .sidebar.open{transform:translateX(0);box-shadow:0 0 0 100vmax rgba(0,0,0,.5);}
+  .app{flex-direction:row;}
+  .lbody{padding:1rem;}
+  .lfooter{padding:1rem;}
+  .wtopics{grid-template-columns:1fr;}
+  .cgrid,.ggrid{grid-template-columns:1fr;}
+  .wcard{padding:2rem 1.25rem;}
+  .wcard h1{font-size:1.5rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<div id="welcome" class="welcome">
+  <div class="wcard">
+    <div class="wi">♿</div>
+    <h1>Accessibility Tutorial</h1>
+    <p>Learn to navigate the web using keyboard controls, screen readers, and mobile assistive technologies — step by step.</p>
+    <div class="wtopics">
+      <div class="wtopic"><div class="ti">⌨️</div><p>Keyboard Navigation</p></div>
+      <div class="wtopic"><div class="ti">🖥️</div><p>macOS VoiceOver</p></div>
+      <div class="wtopic"><div class="ti">📱</div><p>Mobile Screen Readers</p></div>
+    </div>
+    <p class="wmeta">17 lessons · Progressive difficulty · Interactive exercises</p>
+    <button class="btn-start" onclick="startTutorial()">Start Learning →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="app hidden">
+  <nav id="sidebar" class="sidebar" aria-label="Lesson navigation">
+    <div class="sh">
+      <span class="sh-title">A11y Tutorial</span>
+      <button class="sh-close" onclick="toggleSidebar()" aria-label="Close menu">✕</button>
+    </div>
+    <div class="sp">
+      <div class="sp-lbl"><span>Progress</span><span id="plbl">0 / 17</span></div>
+      <div class="sp-bar"><div class="sp-fill" id="pbar" style="width:0%"></div></div>
+    </div>
+    <div class="snav" id="snav" role="list"></div>
+  </nav>
+  <div class="main" id="main">
+    <div class="mhdr">
+      <button class="mtog" onclick="toggleSidebar()" aria-label="Open lesson menu">☰</button>
+      <div class="mhdr-info">
+        <div class="mhdr-ch" id="hch">Chapter 1 · Keyboard Navigation</div>
+        <div class="mhdr-t" id="ht">Introduction</div>
+      </div>
+      <div class="mhdr-p" id="hp">Lesson 1 of 18</div>
+    </div>
+    <div class="lbody" id="lbody"></div>
+    <div class="lfooter">
+      <button class="btn btns" id="bprev" onclick="navLesson(-1)">← Previous</button>
+      <button class="btn btnp" id="bnext" onclick="navLesson(1)">Next Lesson →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+let cur = 0, done = new Set(), exDone = false, keyHandler = null;
+
+const chapters = [
+  {id:1,title:'Keyboard Navigation',icon:'⌨️'},
+  {id:2,title:'VoiceOver on macOS',icon:'🖥️'},
+  {id:3,title:'Mobile Screen Readers',icon:'📱'}
+];
+
+// ===== HELPERS =====
+function K(k){return`<kbd>${k}</kbd>`;}
+function dbadge(d){if(!d)return'';const m={easy:['be','🟢 Easy'],medium:['bm','🟡 Medium'],hard:['bh','🔴 Hard']};return`<span class="badge ${m[d][0]}">${m[d][1]}</span>`;}
+function ibox(t,ic,c){return`<div class="ibox ${t}"><span class="ibox-ic">${ic}</span><div class="ibox-c">${c}</div></div>`;}
+function CC(keys,desc){const kh=keys.map(k=>`<kbd>${k}</kbd>`).join(' <span style="color:var(--muted);font-size:.75rem">+</span> ');return`<div class="ccard"><div class="ckeys">${kh}</div><div class="cdesc">${desc}</div></div>`;}
+function GC(ic,ttl,desc){return`<div class="gcard"><div class="gic">${ic}</div><div class="ginf"><h4>${ttl}</h4><p>${desc}</p></div></div>`;}
+function ST(t){return`<div class="stitle">${t}</div>`;}
+
+function setKH(fn){
+  if(keyHandler)document.removeEventListener('keydown',keyHandler);
+  keyHandler=fn;
+  if(fn)document.addEventListener('keydown',fn);
+}
+function clearKH(){setKH(null);}
+
+function showKey(k){
+  const el=document.getElementById('kd');
+  if(!el)return;
+  el.textContent=k;el.classList.add('pressed');
+  setTimeout(()=>el&&el.classList.remove('pressed'),200);
+}
+function markStep(id){const el=document.getElementById('s_'+id);if(el)el.classList.add('done');}
+function exStatus(type,ic,msg){
+  const el=document.getElementById('exst');if(!el)return;
+  el.className=`exstatus ${type}`;
+  el.querySelector('.stic').textContent=ic;
+  el.querySelector('#stxt').textContent=msg;
+}
+function completeEx(){
+  exDone=true;done.add(cur);
+  const ea=document.getElementById('exarea');if(ea)ea.classList.add('done');
+  const eh=document.getElementById('exhdr-icon');if(eh)eh.textContent='✅';
+  exStatus('success','🎉','Exercise complete! Great work! Click "Next Lesson →" to continue.');
+  updateUI();
+  setTimeout(()=>{const nb=document.getElementById('bnext');if(nb)nb.focus();},300);
+}
+function skipEx(){exDone=true;done.add(cur);updateUI();exStatus('hint','⏭️','Exercise skipped. You can come back and try it anytime.');}
+
+function exArea(title, taskHTML, sandboxHTML, steps){
+  const stepsHTML = steps ? `<ul class="steplist" id="stl">${steps.map(s=>`<li id="s_${s.id}">${s.label}</li>`).join('')}</ul>` : '';
+  return `<div class="exarea" id="exarea">
+    <div class="exhdr"><span>🎯</span><h3 id="exh3">${title}</h3><span id="exhdr-icon">⏳</span></div>
+    <div class="exbody">
+      <div class="extask">${taskHTML}</div>
+      <div class="keyind">Last key pressed: <span class="kdisp" id="kd">—</span></div>
+      <div class="sandbox" id="esb">${sandboxHTML}</div>
+      ${stepsHTML}
+      <div class="exstatus pending" id="exst"><span class="stic">💡</span><span id="stxt">Complete the exercise above to continue.</span></div>
+      <button class="skip-link" onclick="skipEx()">Skip this exercise →</button>
+    </div>
+  </div>`;
+}
+
+// ===== LESSONS =====
+const lessons = [
+  // CH1
+  {id:1,ch:1,d:null,title:'Introduction to Keyboard Navigation',r:L1},
+  {id:2,ch:1,d:'easy',title:'The Tab Key — Moving Forward',r:L2},
+  {id:3,ch:1,d:'easy',title:'Shift+Tab — Moving Backward',r:L3},
+  {id:4,ch:1,d:'easy',title:'Enter & Space — Activating Elements',r:L4},
+  {id:5,ch:1,d:'medium',title:'Arrow Keys — Within Components',r:L5},
+  {id:6,ch:1,d:'medium',title:'Escape — Closing & Canceling',r:L6},
+  {id:7,ch:1,d:'medium',title:'Navigating Forms',r:L7},
+  // CH2
+  {id:9,ch:2,d:null,title:'Getting Started with VoiceOver',r:L9},
+  {id:10,ch:2,d:'easy',title:'Basic Navigation Commands',r:L10},
+  {id:11,ch:2,d:'easy',title:'Reading & Understanding Content',r:L11},
+  {id:12,ch:2,d:'medium',title:'Headings, Landmarks & the Rotor',r:L12},
+  {id:13,ch:2,d:'medium',title:'Forms & Interactive Elements',r:L13},
+  {id:14,ch:2,d:'hard',title:'Tables & Complex Content',r:L14},
+  // CH3
+  {id:15,ch:3,d:null,title:'iOS VoiceOver — Setup & Basics',r:L15},
+  {id:16,ch:3,d:'medium',title:'iOS VoiceOver — Gestures',r:L16},
+  {id:17,ch:3,d:null,title:'Android TalkBack — Setup & Basics',r:L17},
+  {id:18,ch:3,d:'medium',title:'Android TalkBack — Gestures',r:L18},
+];
+
+function autoComplete(idx){exDone=true;done.add(idx);updateUI();}
+
+// --- L1 ---
+function L1(c){
+  autoComplete(0);
+  c.innerHTML=`<div class="lcontent">
+    <h2>Introduction to Keyboard Navigation</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 1 · Keyboard Navigation</span></div>
+    <div class="intro">
+      <p>Many users navigate the web entirely without a mouse — people with motor disabilities, power users who prefer efficiency, and anyone using a screen reader.</p>
+      <p>According to <strong>WCAG 2.1 Guideline 2.1</strong>, all functionality must be accessible via keyboard. Learning this makes you a better developer and a more empathetic user.</p>
+    </div>
+    ${ST('Core Navigation Keys')}
+    <div class="cgrid">
+      ${CC(['Tab'],'Move forward to the next interactive element')}
+      ${CC(['Shift','Tab'],'Move backward to the previous element')}
+      ${CC(['Enter'],'Activate links and buttons; submit forms')}
+      ${CC(['Space'],'Activate buttons, checkboxes; scroll page')}
+      ${CC(['↑ ↓ ← →'],'Navigate within components (menus, sliders)')}
+      ${CC(['Escape'],'Close modals, menus, cancel actions')}
+    </div>
+    ${ST('What is Focus?')}
+    <div class="intro">
+      <p><strong>Focus</strong> is which element is ready to receive keyboard input. It's shown as a visible outline around the element. Press ${K('Tab')} a few times right now to see it move!</p>
+    </div>
+    ${ibox('warn','⚠️',`Never use <code>outline: none</code> in CSS without a replacement. This makes the page <strong>completely unnavigable</strong> for keyboard users.`)}
+    ${ibox('tip','💡',`Try it: Press ${K('Tab')} several times on this page. You should see a blue/purple outline moving between the sidebar buttons and "Next Lesson" button.`)}
+  </div>`;
+}
+
+// --- L2 ---
+function L2(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>The Tab Key — Moving Forward</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 1 · Keyboard Navigation</span>${dbadge('easy')}</div>
+    <div class="intro">
+      <p>The ${K('Tab')} key moves focus <strong>forward</strong> through all focusable elements: links, buttons, inputs, and elements with <code>tabindex</code>. Tab order follows the DOM source order.</p>
+    </div>
+    ${exArea(
+      'Tab Navigation Challenge',
+      `<p><strong>Your task:</strong> Click <em>Start</em> to focus Button 1, then press ${K('Tab')} to navigate forward until you reach <strong>✨ Activate Me!</strong>, and press ${K('Enter')} to activate it.</p>`,
+      `<div class="exbtns">
+        <button class="btn btns" onclick="startL2()" id="l2start" style="margin-bottom:.75rem">▶ Start Exercise</button>
+      </div>
+      <div class="exbtns" id="l2btns" style="display:none">
+        <button class="exbtn" id="l2b1">Button 1</button>
+        <button class="exbtn" id="l2b2">Button 2</button>
+        <button class="exbtn target" id="l2b3">✨ Activate Me!</button>
+        <button class="exbtn" id="l2b4">Button 4</button>
+        <button class="exbtn" id="l2b5">Button 5</button>
+      </div>`,
+      [{id:'t1',label:'Click Start to begin'},{id:'t2',label:'Press Tab to move focus forward'},{id:'t3',label:'Reach the "Activate Me!" button'},{id:'t4',label:'Press Enter to activate it'}]
+    )}
+    ${ST('Tab Order Rules')}
+    <div class="intro">
+      <p>• <code>tabindex="0"</code> — adds element to natural tab order<br>
+         • <code>tabindex="-1"</code> — removes from tab (but focusable via JS)<br>
+         • <code>tabindex="1+"</code> — explicit order (generally avoid — causes confusion)</p>
+    </div>
+  </div>`;
+
+  let tabUsed=false,reached=false;
+  window.startL2=function(){
+    markStep('t1');
+    document.getElementById('l2start').style.display='none';
+    document.getElementById('l2btns').style.display='flex';
+    document.getElementById('l2b1').focus();
+    exStatus('hint','💡','Focus is on Button 1. Press Tab to move forward!');
+  };
+  document.getElementById('l2b3').addEventListener('focus',()=>{
+    if(!reached){reached=true;markStep('t2');markStep('t3');exStatus('hint','🎯','You reached "Activate Me!" — now press Enter!');}
+  });
+  setKH(function(e){
+    if(!document.getElementById('exarea')){clearKH();return;}
+    if(e.key==='Tab'){showKey('Tab');if(!tabUsed){tabUsed=true;markStep('t2');}}
+    if(e.key==='Enter'&&document.activeElement===document.getElementById('l2b3')){
+      showKey('Enter');
+      const b=document.getElementById('l2b3');
+      b.classList.add('activated');b.textContent='✅ Activated!';
+      markStep('t4');completeEx();clearKH();
+    }
+  });
+}
+
+// --- L3 ---
+function L3(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Shift+Tab — Moving Backward</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 1 · Keyboard Navigation</span>${dbadge('easy')}</div>
+    <div class="intro">
+      <p>Holding ${K('Shift')} while pressing ${K('Tab')} moves focus <strong>backward</strong> to the previous focusable element. This is essential when you've overshot your target.</p>
+    </div>
+    ${exArea(
+      'Shift+Tab Challenge',
+      `<p><strong>Your task:</strong> Click <em>Start</em> to focus Button 5, then use ${K('Shift')}+${K('Tab')} to navigate backward to <strong>⬅️ Go Back Here!</strong> (Button 2), then press ${K('Enter')}.</p>`,
+      `<div class="exbtns">
+        <button class="btn btns" onclick="startL3()" id="l3start" style="margin-bottom:.75rem">▶ Start Exercise</button>
+      </div>
+      <div class="exbtns" id="l3btns" style="display:none">
+        <button class="exbtn" id="l3b1">Button 1</button>
+        <button class="exbtn target" id="l3b2">⬅️ Go Back Here!</button>
+        <button class="exbtn" id="l3b3">Button 3</button>
+        <button class="exbtn" id="l3b4">Button 4</button>
+        <button class="exbtn" id="l3b5">⏩ Button 5 (start)</button>
+      </div>`,
+      [{id:'b1',label:'Click Start — focus begins at Button 5'},{id:'b2',label:'Press Shift+Tab to move backward'},{id:'b3',label:'Reach "Go Back Here!" (Button 2)'},{id:'b4',label:'Press Enter to activate it'}]
+    )}
+  </div>`;
+
+  let shiftUsed=false;
+  window.startL3=function(){
+    markStep('b1');
+    document.getElementById('l3start').style.display='none';
+    document.getElementById('l3btns').style.display='flex';
+    document.getElementById('l3b5').focus();
+    exStatus('hint','💡','Focus is on Button 5. Now press Shift+Tab to go backward!');
+  };
+  document.getElementById('l3b2') && document.getElementById('l3b2').addEventListener('focus',()=>{
+    markStep('b2');markStep('b3');exStatus('hint','🎯','You reached "Go Back Here!" — press Enter!');
+  });
+  setKH(function(e){
+    if(!document.getElementById('exarea')){clearKH();return;}
+    if(e.key==='Tab'&&e.shiftKey){showKey('⇧Tab');if(!shiftUsed){shiftUsed=true;markStep('b2');}}
+    if(e.key==='Tab'&&!e.shiftKey)showKey('Tab');
+    if(e.key==='Enter'&&document.activeElement===document.getElementById('l3b2')){
+      showKey('Enter');
+      const b=document.getElementById('l3b2');
+      b.classList.add('activated');b.textContent='✅ Got it!';
+      markStep('b4');completeEx();clearKH();
+    }
+  });
+}
+
+// --- L4 ---
+function L4(c){
+  exDone=false;
+  let ld=false,bd=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Enter & Space — Activating Elements</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 1 · Keyboard Navigation</span>${dbadge('easy')}</div>
+    <div class="intro">
+      <p><strong>${K('Enter')}</strong> activates <strong>links</strong> (&lt;a&gt;) and <strong>buttons</strong>. It also submits forms.</p>
+      <p><strong>${K('Space')}</strong> activates <strong>buttons</strong> and <strong>checkboxes</strong>. It also scrolls the page when nothing is focused.</p>
+    </div>
+    ${ibox('note','ℹ️',`Links respond to ${K('Enter')} only. Buttons respond to both. This is why semantic HTML matters — use <code>&lt;a&gt;</code> for navigation and <code>&lt;button&gt;</code> for actions.`)}
+    ${exArea(
+      'Enter vs Space Challenge',
+      `<p><strong>Task 1:</strong> Tab to the <strong>Link</strong> and press ${K('Enter')}.<br><strong>Task 2:</strong> Tab to the <strong>Button</strong> and press ${K('Space')}.</p>`,
+      `<div class="exbtns">
+        <a href="#" class="exbtn" id="exlink" style="text-decoration:none" onclick="doLink(event)">🔗 I'm a Link — use Enter</a>
+        <button class="exbtn target" id="exbtnsp">🔘 I'm a Button — use Space</button>
+      </div>`,
+      [{id:'e1',label:'Tab to the link and press Enter'},{id:'e2',label:'Tab to the button and press Space'}]
+    )}
+    ${ST('Common Mistake')}
+    <div class="intro"><p>Using <code>&lt;div onclick="..."&gt;</code> instead of <code>&lt;button&gt;</code> breaks Space/Enter support and requires extra ARIA and keyboard handling. Always use native elements.</p></div>
+  </div>`;
+
+  window.doLink=function(e){
+    e.preventDefault();
+    const el=document.getElementById('exlink');
+    el.textContent='✅ Link activated!';el.classList.add('activated');
+    markStep('e1');ld=true;check4();
+  };
+  document.getElementById('exbtnsp').addEventListener('click',function(){
+    this.textContent='✅ Button activated!';this.classList.add('activated');
+    markStep('e2');bd=true;check4();
+  });
+  function check4(){
+    if(ld&&bd){completeEx();clearKH();}
+    else if(ld)exStatus('hint','💡','Great! Now Tab to the button and press Space.');
+    else if(bd)exStatus('hint','💡','Great! Now Tab to the link and press Enter.');
+  }
+  setKH(function(e){
+    if(!document.getElementById('exarea')){clearKH();return;}
+    showKey(e.key===' '?'Space':e.key==='Enter'?'Enter':e.key==='Tab'?'Tab':e.key);
+  });
+}
+
+// --- L5 ---
+function L5(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Arrow Keys — Within Components</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 1 · Keyboard Navigation</span>${dbadge('medium')}</div>
+    <div class="intro">
+      <p>Arrow keys navigate <em>within</em> components like radio groups, menus, tabs, and sliders. This is the <strong>roving tabindex</strong> pattern:</p>
+      <p>${K('Tab')} → gets you <em>into</em> the component &nbsp;·&nbsp; ${K('↑↓')} or ${K('←→')} → moves <em>inside</em> it &nbsp;·&nbsp; ${K('Tab')} again → moves <em>out</em></p>
+    </div>
+    ${ibox('tip','💡','Arrow key navigation is used in: radio groups, custom dropdowns, tab lists, toolbars, tree views, carousels, sliders, and date pickers.')}
+    ${exArea(
+      'Arrow Keys Challenge',
+      `<p><strong>Task:</strong> Tab into the radio group below. Use ${K('↑')} and ${K('↓')} arrow keys to select <strong>"⭐ Option 3: Accessibility"</strong>, then Tab out of the group.</p>`,
+      `<div role="radiogroup" aria-labelledby="rglbl">
+        <p id="rglbl" style="font-weight:600;font-size:.83rem;margin-bottom:.5rem;">Choose a topic:</p>
+        <div class="radio-grp">
+          <label class="ropt"><input type="radio" name="exr" value="1"> Option 1: HTML</label>
+          <label class="ropt"><input type="radio" name="exr" value="2"> Option 2: CSS</label>
+          <label class="ropt"><input type="radio" name="exr" value="3" id="rt"> ⭐ Option 3: Accessibility</label>
+          <label class="ropt"><input type="radio" name="exr" value="4"> Option 4: JavaScript</label>
+        </div>
+      </div>`,
+      [{id:'a1',label:'Press Tab to focus the radio group'},{id:'a2',label:'Use ↑ / ↓ arrow keys to navigate'},{id:'a3',label:'Select "Option 3: Accessibility"'}]
+    )}
+  </div>`;
+
+  let arrUsed=false;
+  document.querySelectorAll('input[name="exr"]').forEach(r=>{
+    r.addEventListener('focus',()=>markStep('a1'));
+  });
+  document.getElementById('rt').addEventListener('change',function(){
+    if(this.checked){markStep('a2');markStep('a3');completeEx();clearKH();}
+  });
+  setKH(function(e){
+    if(!document.getElementById('exarea')){clearKH();return;}
+    if(e.key==='ArrowUp'||e.key==='ArrowDown'){
+      showKey(e.key==='ArrowUp'?'↑':'↓');
+      if(!arrUsed){arrUsed=true;markStep('a2');}
+      // Check after tick
+      setTimeout(()=>{
+        const rt=document.getElementById('rt');
+        if(rt&&rt.checked&&!exDone){markStep('a3');completeEx();clearKH();}
+      },50);
+    }
+    if(e.key==='Tab')showKey('Tab');
+  });
+}
+
+// --- L6 ---
+function L6(c){
+  exDone=false;
+  let mopen=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Escape — Closing & Canceling</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 1 · Keyboard Navigation</span>${dbadge('medium')}</div>
+    <div class="intro">
+      <p>The ${K('Escape')} key is the universal <em>"get me out"</em> key. It must close: modal dialogs, dropdown menus, tooltips, popovers, and any overlay.</p>
+      <p>When a modal closes, <strong>focus must return</strong> to the trigger element. This is a critical UX requirement for keyboard users.</p>
+    </div>
+    ${ibox('note','ℹ️',`<strong>Focus trap:</strong> While a modal is open, Tab should cycle only through the modal's interactive elements — it must not leave the dialog until it's dismissed.`)}
+    ${exArea(
+      'Escape Key Challenge',
+      `<p><strong>Task:</strong> Activate the "Open Dialog" button. When the modal appears, press ${K('Escape')} to close it. Notice where focus goes!</p>`,
+      `<div style="text-align:center;padding:.5rem">
+        <button class="exbtn" id="openbtn" onclick="openM6()">📂 Open Dialog</button>
+      </div>`,
+      [{id:'m1',label:'Open the dialog'},{id:'m2',label:'Press Escape to close it'},{id:'m3',label:'Notice focus returns to trigger'}]
+    )}
+  </div>`;
+
+  window.openM6=function(){
+    if(document.getElementById('exmod'))return;
+    mopen=true;markStep('m1');
+    exStatus('hint','💡','Modal is open! Press Escape to close it.');
+    const mod=document.createElement('div');
+    mod.className='modback';mod.id='exmod';
+    mod.setAttribute('role','dialog');mod.setAttribute('aria-modal','true');mod.setAttribute('aria-labelledby','mttl');
+    mod.innerHTML=`<div class="moddlg">
+      <h3 id="mttl">🎉 Modal Dialog</h3>
+      <p>While this modal is open, focus should stay trapped inside. Press <strong>Escape</strong> to close it, or use the Cancel button.</p>
+      <div style="display:flex;gap:.5rem">
+        <button class="btn btns" id="mcanc" onclick="closeM6(false)">Cancel</button>
+        <button class="btn btnp" id="mconf" onclick="closeM6(false)">Confirm</button>
+      </div>
+    </div>`;
+    document.body.appendChild(mod);
+    // Focus trap
+    const focusable=mod.querySelectorAll('button');
+    focusable[0].focus();
+    mod.addEventListener('keydown',function(e){
+      if(e.key==='Escape'){e.preventDefault();closeM6(true);return;}
+      if(e.key==='Tab'){
+        e.preventDefault();
+        const fs=[...focusable];
+        const idx=fs.indexOf(document.activeElement);
+        const next=e.shiftKey?(idx-1+fs.length)%fs.length:(idx+1)%fs.length;
+        fs[next].focus();
+      }
+    });
+  };
+  window.closeM6=function(fromEsc){
+    const m=document.getElementById('exmod');
+    if(m){m.remove();mopen=false;setTimeout(()=>{const ob=document.getElementById('openbtn');if(ob)ob.focus();},0);}
+    if(fromEsc){markStep('m2');markStep('m3');completeEx();clearKH();}
+  };
+  setKH(function(e){
+    if(!document.getElementById('exarea')){clearKH();return;}
+    if(e.key==='Escape'){e.preventDefault();showKey('Esc');if(mopen){clearKH();closeM6(true);}}
+    else if(e.key==='Tab')showKey('Tab');
+  });
+}
+
+// --- L7 ---
+function L7(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Navigating Forms</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 1 · Keyboard Navigation</span>${dbadge('medium')}</div>
+    <div class="intro">
+      <p><strong>${K('Tab')}</strong> — next field &nbsp;·&nbsp; <strong>${K('Shift')}+${K('Tab')}</strong> — previous field &nbsp;·&nbsp; <strong>${K('Space')}</strong> — toggle checkboxes<br>
+      <strong>${K('↑↓')}</strong> — change select value &nbsp;·&nbsp; <strong>${K('Enter')}</strong> — submit form (from text inputs)</p>
+    </div>
+    ${exArea(
+      'Form Navigation Challenge',
+      `<p><strong>Task:</strong> Complete this registration form using <strong>only your keyboard</strong> (Tab between fields, arrow keys for select). Fill in all fields and submit.</p>`,
+      `<form class="exform" id="exfm" onsubmit="subF(event)">
+        <div class="exfg"><label for="fn">Full Name *</label><input type="text" id="fn" placeholder="Enter your name" autocomplete="off"></div>
+        <div class="exfg"><label for="fe">Email Address *</label><input type="email" id="fe" placeholder="you@example.com" autocomplete="off"></div>
+        <div class="exfg"><label for="frl">Your Role *</label>
+          <select id="frl">
+            <option value="">Select a role…</option>
+            <option value="dev">Developer</option>
+            <option value="des">Designer</option>
+            <option value="pm">Product Manager</option>
+            <option value="oth">Other</option>
+          </select>
+        </div>
+        <div class="exfg"><div class="cbg"><input type="checkbox" id="fag"><label for="fag">I agree to learn about accessibility ✅</label></div></div>
+        <button type="submit" class="btn btnp">Submit Form →</button>
+      </form>`,
+      [{id:'f1',label:'Fill in your name'},{id:'f2',label:'Fill in your email'},{id:'f3',label:'Select a role using arrow keys'},{id:'f4',label:'Check the agreement checkbox'},{id:'f5',label:'Submit the form'}]
+    )}
+  </div>`;
+
+  window.subF=function(e){
+    e.preventDefault();
+    const n=document.getElementById('fn').value.trim();
+    const em=document.getElementById('fe').value.trim();
+    const r=document.getElementById('frl').value;
+    const a=document.getElementById('fag').checked;
+    if(!n)return exStatus('error','❌','Please fill in your name.');
+    if(!em)return exStatus('error','❌','Please fill in your email.');
+    if(!r)return exStatus('error','❌','Please select a role (use arrow keys on the dropdown).');
+    if(!a)return exStatus('error','❌','Please check the agreement checkbox (press Space).');
+    markStep('f5');completeEx();
+  };
+  document.getElementById('fn').addEventListener('input',()=>markStep('f1'));
+  document.getElementById('fe').addEventListener('input',()=>markStep('f2'));
+  document.getElementById('frl').addEventListener('change',()=>markStep('f3'));
+  document.getElementById('fag').addEventListener('change',()=>markStep('f4'));
+  setKH(function(e){
+    if(!document.getElementById('exarea')){clearKH();return;}
+    const k=e.key==='Tab'?'Tab':e.key===' '?'Space':e.key==='ArrowDown'?'↓':e.key==='ArrowUp'?'↑':e.key==='Enter'?'Enter':null;
+    if(k)showKey(k);
+  });
+}
+
+// --- L8 ---
+function L8(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Navigating Data Tables</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 1 · Keyboard Navigation</span>${dbadge('hard')}</div>
+    <div class="intro">
+      <p>${K('Tab')} — move between focusable cells/links<br>
+      ${K('←→↑↓')} — move between cells in a <code>role="grid"</code><br>
+      ${K('Home')}/${K('End')} — first/last cell in row<br>
+      ${K('Ctrl')}+${K('Home')}/${K('End')} — first/last cell in table</p>
+    </div>
+    ${ibox('tip','💡','Use <code>&lt;th scope="col"&gt;</code> for column headers and <code>&lt;th scope="row"&gt;</code> for row headers. Screen readers use these to announce cell context.')}
+    ${exArea(
+      'Table Navigation Challenge',
+      `<p><strong>Task:</strong> Navigate the employee table using ${K('Tab')}. Read the salaries and click <strong>View</strong> for the employee with the <strong>highest salary</strong>.</p>`,
+      `<div class="tbl-wrap">
+        <table class="dtbl" role="grid" aria-label="Employee Directory">
+          <caption>Employee Directory (find the highest salary)</caption>
+          <thead><tr>
+            <th scope="col">Name</th>
+            <th scope="col">Department</th>
+            <th scope="col">Salary</th>
+            <th scope="col">Action</th>
+          </tr></thead>
+          <tbody>
+            <tr><td>Alice Johnson</td><td>Engineering</td><td>$95,000</td><td><button class="exbtn" onclick="pickEmp(this,'Alice',false)" style="padding:.3rem .7rem;font-size:.78rem">View</button></td></tr>
+            <tr><td>Bob Martinez</td><td>Design</td><td>$78,000</td><td><button class="exbtn" onclick="pickEmp(this,'Bob',false)" style="padding:.3rem .7rem;font-size:.78rem">View</button></td></tr>
+            <tr><td>Carol Chen</td><td>Engineering</td><td style="font-weight:700;color:var(--suc)">$112,000 ⭐</td><td><button class="exbtn" id="carolbtn" onclick="pickEmp(this,'Carol',true)" style="padding:.3rem .7rem;font-size:.78rem">View</button></td></tr>
+            <tr><td>David Kim</td><td>Marketing</td><td>$85,000</td><td><button class="exbtn" onclick="pickEmp(this,'David',false)" style="padding:.3rem .7rem;font-size:.78rem">View</button></td></tr>
+          </tbody>
+        </table>
+      </div>`,
+      [{id:'tb1',label:'Navigate the table with Tab'},{id:'tb2',label:'Find the highest salary ($112,000)'},{id:'tb3',label:'Click View for the correct employee'}]
+    )}
+    ${ST('Accessible Table Best Practices')}
+    <div class="intro"><p>Always include a <code>&lt;caption&gt;</code>, use <code>scope</code> on <code>&lt;th&gt;</code> elements, and avoid merged cells where possible. For complex tables, use <code>id</code>/<code>headers</code> attribute pairs.</p></div>
+  </div>`;
+
+  window.pickEmp=function(btn,name,correct){
+    markStep('tb1');
+    if(correct){
+      btn.classList.add('activated');btn.textContent='✅ Correct!';
+      markStep('tb2');markStep('tb3');completeEx();clearKH();
+    } else {
+      exStatus('error','❌',`${name} doesn't have the highest salary. Read all the salaries carefully!`);
+    }
+  };
+  setKH(function(e){
+    if(!document.getElementById('exarea')){clearKH();return;}
+    if(e.key==='Tab'){showKey('Tab');markStep('tb1');}
+  });
+}
+
+// --- CH2 HELPERS ---
+function voChecklist(id, steps){
+  const items = steps.map(s=>`
+    <li id="vos_${id}_${s.id}" class="vo-step">
+      <div class="vo-step-info">
+        <span class="vo-step-cmd">${s.cmd}</span>
+        <span class="vo-step-label">${s.label}</span>
+      </div>
+      <button class="vo-check-btn" onclick="voMark('${id}','${s.id}',${steps.length})" aria-label="Mark step done">✓ Done</button>
+    </li>`).join('');
+  return `<div class="vo-practice" id="vop_${id}">
+    <div class="exhdr" style="border-radius:var(--r) var(--r) 0 0;border:2px solid var(--pri);border-bottom:2px solid var(--pri)"><span>🎙️</span><h3>Practice with VoiceOver — follow each step</h3><span id="vo_icon_${id}">⏳</span></div>
+    <ul class="vo-steps" id="volist_${id}">${items}</ul>
+    <div class="exstatus pending" id="vo_st_${id}" style="margin:0 1.25rem 1.25rem"><span class="stic">💡</span><span>Enable VoiceOver (⌘F5), then work through each step. Click "✓ Done" after completing each one.</span></div>
+  </div>`;
+}
+function voMark(practiceId, stepId, total){
+  const li = document.getElementById(`vos_${practiceId}_${stepId}`);
+  if(!li || li.classList.contains('vo-step-done')) return;
+  li.classList.add('vo-step-done');
+  li.querySelector('.vo-check-btn').disabled = true;
+  const list = document.getElementById(`volist_${practiceId}`);
+  const doneCount = list.querySelectorAll('.vo-step-done').length;
+  const st = document.getElementById(`vo_st_${practiceId}`);
+  if(doneCount === total){
+    document.getElementById(`vo_icon_${practiceId}`).textContent = '✅';
+    st.className = 'exstatus success';
+    st.innerHTML = '<span class="stic">🎉</span><span>All steps complete! Great work with VoiceOver.</span>';
+    completeEx();
+  } else {
+    st.className = 'exstatus hint';
+    st.innerHTML = `<span class="stic">💡</span><span>${doneCount} of ${total} steps done — keep going!</span>`;
+  }
+}
+
+// --- CH2 LESSONS ---
+function L9(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Getting Started with VoiceOver</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 2 · VoiceOver on macOS</span></div>
+    <div class="intro">
+      <p>VoiceOver is Apple's built-in screen reader for macOS. It reads aloud everything on screen — text, UI elements, their roles, states, and relationships. It's free and built into every Mac.</p>
+      <p>VoiceOver uses a modifier key called the <strong>"VO key"</strong> — either <kbd>Caps Lock</kbd> or <kbd>Ctrl</kbd>+<kbd>Option</kbd>. All VoiceOver commands start with this key.</p>
+    </div>
+    ${ST('Turning VoiceOver On & Off')}
+    <div class="cgrid">
+      ${CC(['⌘ Cmd','F5'],'Toggle VoiceOver on/off (works system-wide)')}
+      ${CC(['VO','F8'],'Open VoiceOver Utility (settings panel)')}
+      ${CC(['Escape'],'Stop VoiceOver from reading')}
+    </div>
+    ${ibox('warn','⚠️',`When you first enable VoiceOver, a <strong>Welcome dialog</strong> appears. Press ${K('Return')} to enter Apple's built-in tutorial, or ${K('Escape')} to skip. <strong>We strongly recommend running it at least once.</strong>`)}
+    ${ST('The VO Key Shorthand')}
+    <div class="intro"><p><strong>VO</strong> = <kbd>Caps Lock</kbd> (easier) or <kbd>Control</kbd>+<kbd>Option</kbd> held together. For example, "VO + Right Arrow" means: hold your VO modifier and press →.</p></div>
+    ${ST('The VoiceOver Cursor')}
+    <div class="intro"><p>VoiceOver has its own cursor (a black rounded rectangle) that's <em>separate</em> from keyboard focus. It can land on <strong>any</strong> element — including non-interactive text, images, and regions.</p></div>
+    ${ibox('tip','💡','Use Safari for all VoiceOver exercises — it has the best support.')}
+    ${ST('Practice')}
+    ${voChecklist('l9',[
+      {id:'1', cmd:'⌘F5',     label:'Enable VoiceOver — hear the welcome announcement'},
+      {id:'2', cmd:'VO+F8',   label:'Open VoiceOver Utility, look around the settings, then close it'},
+      {id:'3', cmd:'VO+→',    label:'Move the VoiceOver cursor to the next element on this page and hear it announced'},
+      {id:'4', cmd:'Control', label:'Stop VoiceOver mid-sentence by pressing Control'},
+      {id:'5', cmd:'⌘F5',     label:'Disable VoiceOver'},
+    ])}
+    <button class="skip-link" onclick="skipEx()">Skip this exercise →</button>
+  </div>`;
+}
+
+function L10(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Basic Navigation Commands</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 2 · VoiceOver on macOS</span>${dbadge('easy')}</div>
+    <div class="intro"><p>These are the commands you'll use most. <em>VO = Caps Lock or Ctrl+Option</em></p></div>
+    ${ST('Moving the VoiceOver Cursor')}
+    <div class="cgrid">
+      ${CC(['VO','→'],'Move to next item on page')}
+      ${CC(['VO','←'],'Move to previous item')}
+      ${CC(['Tab'],'Jump to next focusable element')}
+      ${CC(['Shift','Tab'],'Jump to previous focusable element')}
+    </div>
+    ${ST('Activating Elements')}
+    <div class="cgrid">
+      ${CC(['VO','Space'],'Click / activate focused element')}
+      ${CC(['Return'],'Activate link or button')}
+      ${CC(['VO','Shift','↓'],'Start interacting with a widget/group')}
+      ${CC(['VO','Shift','↑'],'Stop interacting — exit widget/group')}
+    </div>
+    ${ibox('note','ℹ️',`VoiceOver announces each element's <strong>name</strong>, <strong>role</strong>, and <strong>state</strong>. Example: <em>"Accept terms, checkbox, unchecked"</em> or <em>"Search, button, dimmed"</em>.`)}
+    ${ST('Practice — Navigate this page with VoiceOver')}
+    <div class="intro" id="l10-sandbox">
+      <h3 style="font-size:1rem;margin-bottom:.5rem">Sample Article</h3>
+      <p>Web accessibility ensures that <strong>everyone</strong> can use the web, regardless of disability.</p>
+      <p><a href="#" onclick="return false">Learn more about WCAG guidelines</a></p>
+      <button class="exbtn" style="margin-top:.5rem" id="l10btn" onclick="document.getElementById('l10btn').textContent='✅ Button activated!'">Click me with VO+Space</button>
+    </div>
+    ${voChecklist('l10',[
+      {id:'1', cmd:'VO+→',       label:'Move the VO cursor right — hear each element announced'},
+      {id:'2', cmd:'VO+←',       label:'Move the VO cursor left — go back to the previous element'},
+      {id:'3', cmd:'Tab',        label:'Press Tab — notice focus jumps only to the link and button, skipping plain text'},
+      {id:'4', cmd:'VO+Space',   label:'Land on the button with VO cursor and activate it with VO+Space'},
+      {id:'5', cmd:'VO+Shift+↓', label:'Land on the article paragraph and interact with it (VO+Shift+↓), then exit (VO+Shift+↑)'},
+    ])}
+    <button class="skip-link" onclick="skipEx()">Skip this exercise →</button>
+  </div>`;
+}
+
+function L11(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Reading & Understanding Content</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 2 · VoiceOver on macOS</span>${dbadge('easy')}</div>
+    <div class="intro"><p>VoiceOver reads the <em>meaning</em> of content using semantic HTML and ARIA — not just raw text. Understanding what it announces helps you write better, more accessible code.</p></div>
+    ${ST('Reading Commands')}
+    <div class="cgrid">
+      ${CC(['VO','A'],'Read from cursor to end of page')}
+      ${CC(['VO','P'],'Read current paragraph')}
+      ${CC(['VO','S'],'Read current sentence')}
+      ${CC(['VO','W'],'Spell current word')}
+      ${CC(['Control'],'Pause / resume speech')}
+      ${CC(['VO','⌘','↑'],'Increase speech rate')}
+      ${CC(['VO','⌘','↓'],'Decrease speech rate')}
+    </div>
+    ${ST('What VoiceOver Announces')}
+    <div class="intro">
+      <p>VoiceOver reads differently based on the element type:</p>
+      <p><strong>Button:</strong> <em>"Search, button"</em> &nbsp;/&nbsp; <em>"Submit, button, dimmed"</em> (disabled)<br>
+      <strong>Link:</strong> <em>"Home, link"</em><br>
+      <strong>Image:</strong> <em>"Company logo, image"</em> (from alt text) — or skipped entirely if <code>alt=""</code><br>
+      <strong>Heading:</strong> <em>"Introduction, heading level 2"</em><br>
+      <strong>Checkbox:</strong> <em>"Subscribe to newsletter, checkbox, checked"</em><br>
+      <strong>Input:</strong> <em>"Email address, required, edit text"</em></p>
+    </div>
+    ${ibox('warn','⚠️',`If an image has no <code>alt</code> attribute, VoiceOver may read the filename. <strong>Always write descriptive alt text for informative images.</strong>`)}
+    ${ST('Practice — Listen to how VoiceOver describes these elements')}
+    <div class="intro" id="l11-sandbox" style="display:flex;flex-direction:column;gap:.75rem">
+      <img src="https://placehold.co/120x60/6366f1/fff?text=Logo" alt="Accessibility Tutorial logo" style="border-radius:4px">
+      <img src="https://placehold.co/120x60/e2e8f0/64748b?text=No+alt" style="border-radius:4px">
+      <p>This is a paragraph with <strong>bold text</strong> and <em>italic text</em>.</p>
+      <button class="exbtn" disabled>Disabled Button</button>
+      <a href="#" onclick="return false">A regular link</a>
+    </div>
+    ${voChecklist('l11',[
+      {id:'1', cmd:'VO+→',   label:'Navigate to the first image — hear "Accessibility Tutorial logo, image"'},
+      {id:'2', cmd:'VO+→',   label:'Navigate to the second image — notice VoiceOver reads the filename (no alt text!)'},
+      {id:'3', cmd:'VO+A',   label:'Press VO+A to read the paragraph aloud, then Control to stop'},
+      {id:'4', cmd:'VO+→',   label:'Navigate to the disabled button — hear "dimmed" in the announcement'},
+      {id:'5', cmd:'VO+⌘+↑', label:'Increase speech rate with VO+⌘+↑, then slow it back down with VO+⌘+↓'},
+    ])}
+    <button class="skip-link" onclick="skipEx()">Skip this exercise →</button>
+  </div>`;
+}
+
+function L12(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Headings, Landmarks & the Rotor</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 2 · VoiceOver on macOS</span>${dbadge('medium')}</div>
+    <div class="intro"><p>Instead of reading pages linearly, experienced VoiceOver users use the <strong>Web Rotor</strong> to jump instantly to headings, links, form controls, and landmarks — much like a table of contents.</p></div>
+    ${ST('The Web Rotor')}
+    <div class="cgrid">
+      ${CC(['VO','U'],'Open the Web Rotor')}
+      ${CC(['←','→'],'Switch Rotor categories (Headings, Links…)')}
+      ${CC(['↑','↓'],'Navigate items in selected category')}
+      ${CC(['Return'],'Jump to selected item')}
+      ${CC(['Escape'],'Close the Rotor')}
+    </div>
+    ${ST('Jump Commands')}
+    <div class="cgrid">
+      ${CC(['VO','⌘','H'],'Jump to next heading')}
+      ${CC(['VO','⌘','Shift','H'],'Jump to previous heading')}
+      ${CC(['VO','⌘','L'],'Jump to next link')}
+      ${CC(['VO','⌘','J'],'Jump to next form control')}
+    </div>
+    ${ST('HTML Landmark Regions')}
+    <div class="intro">
+      <p>• <code>&lt;main&gt;</code> — "main" · <code>&lt;nav&gt;</code> — "navigation" · <code>&lt;header&gt;</code> — "banner"<br>
+         • <code>&lt;footer&gt;</code> — "content info" · <code>&lt;aside&gt;</code> — "complementary"</p>
+    </div>
+    ${ST('Practice — Use the Rotor on this sample page structure')}
+    <div class="intro" id="l12-sandbox">
+      <nav aria-label="Sample navigation" style="margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--bdr)">
+        <a href="#" onclick="return false" style="margin-right:.75rem">Home</a>
+        <a href="#" onclick="return false" style="margin-right:.75rem">About</a>
+        <a href="#" onclick="return false">Contact</a>
+      </nav>
+      <main>
+        <h2 style="font-size:1rem;margin-bottom:.3rem">Main Article</h2>
+        <p>This is the main content area of the page.</p>
+        <h3 style="font-size:.9rem;margin:.5rem 0 .3rem">Section One</h3>
+        <p>First section content with a <a href="#" onclick="return false">useful link</a>.</p>
+        <h3 style="font-size:.9rem;margin:.5rem 0 .3rem">Section Two</h3>
+        <p>Second section content.</p>
+      </main>
+    </div>
+    ${voChecklist('l12',[
+      {id:'1', cmd:'VO+U',      label:'Open the Web Rotor — use ← → to switch to the Headings category'},
+      {id:'2', cmd:'↑↓',        label:'Use ↑↓ in the Rotor to see all headings listed, then press Return to jump to one'},
+      {id:'3', cmd:'VO+U',      label:'Open Rotor again, switch to Links — navigate to "Contact" and press Return'},
+      {id:'4', cmd:'VO+⌘+H',    label:'Close Rotor, then use VO+⌘+H to jump heading by heading through the page'},
+      {id:'5', cmd:'VO+⌘+L',    label:'Use VO+⌘+L to jump directly to the next link on the page'},
+    ])}
+    <button class="skip-link" onclick="skipEx()">Skip this exercise →</button>
+  </div>`;
+}
+
+function L13(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Forms & Interactive Elements</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 2 · VoiceOver on macOS</span>${dbadge('medium')}</div>
+    <div class="intro"><p>VoiceOver has two modes: <strong>Browse Mode</strong> (reading content) and <strong>Form Mode</strong> (typing into inputs). VoiceOver switches automatically when you interact with form fields.</p></div>
+    ${ST('Form Navigation Commands')}
+    <div class="cgrid">
+      ${CC(['Tab'],'Move to next form control')}
+      ${CC(['Shift','Tab'],'Move to previous form control')}
+      ${CC(['VO','⌘','J'],'Jump to next form control from anywhere')}
+      ${CC(['Space'],'Toggle checkbox / open select dropdown')}
+      ${CC(['↑','↓'],'Change select value; move radio group')}
+      ${CC(['Return'],'Activate button / submit form')}
+    </div>
+    ${ibox('warn','⚠️',`<strong>Developer checklist:</strong><br>
+    • Use <code>&lt;label for="id"&gt;</code> — always<br>
+    • Mark required fields with <code>required</code> or <code>aria-required="true"</code><br>
+    • Link errors with <code>aria-describedby</code><br>
+    • Group radio buttons in <code>&lt;fieldset&gt;</code> with <code>&lt;legend&gt;</code>`)}
+    ${ST('Practice — Navigate this form with VoiceOver')}
+    <form class="exform" id="l13form" onsubmit="return false" style="background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:1.25rem;margin-bottom:1rem">
+      <fieldset style="border:1px solid var(--bdr);border-radius:var(--r);padding:.75rem">
+        <legend style="font-size:.83rem;font-weight:700;padding:0 .4rem">Contact Details</legend>
+        <div class="exfg"><label for="l13n">Full Name <span aria-hidden="true" style="color:var(--err)">*</span></label><input type="text" id="l13n" required placeholder="Jane Smith" autocomplete="off"></div>
+        <div class="exfg"><label for="l13e">Email Address <span aria-hidden="true" style="color:var(--err)">*</span></label><input type="email" id="l13e" required placeholder="jane@example.com" autocomplete="off"></div>
+      </fieldset>
+      <div class="exfg" style="margin-top:.5rem"><label for="l13r">Your Role</label>
+        <select id="l13r"><option value="">Select…</option><option>Developer</option><option>Designer</option><option>Product Manager</option></select>
+      </div>
+      <div class="cbg"><input type="checkbox" id="l13c"><label for="l13c">I agree to the terms</label></div>
+      <button type="submit" class="btn btnp" style="margin-top:.25rem">Submit</button>
+    </form>
+    ${voChecklist('l13',[
+      {id:'1', cmd:'Tab',      label:'Tab into the form — hear VoiceOver announce "Full Name, required, edit text"'},
+      {id:'2', cmd:'Type',     label:'Type your name — notice VoiceOver echoes each character'},
+      {id:'3', cmd:'Tab',      label:'Tab to the Role select — press Space to open it, ↑↓ to change value'},
+      {id:'4', cmd:'Tab',      label:'Tab to the checkbox — hear "I agree to the terms, checkbox, unchecked"'},
+      {id:'5', cmd:'Space',    label:'Press Space to check it — hear "checked" announced'},
+      {id:'6', cmd:'VO+⌘+J',   label:'Press VO+⌘+J to jump directly to the next form control from anywhere'},
+    ])}
+    <button class="skip-link" onclick="skipEx()">Skip this exercise →</button>
+  </div>`;
+}
+
+function L14(c){
+  exDone=false;
+  c.innerHTML=`<div class="lcontent">
+    <h2>Tables & Complex Content</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 2 · VoiceOver on macOS</span>${dbadge('hard')}</div>
+    <div class="intro"><p>Tables are among the most complex elements for screen readers. VoiceOver announces which row and column you're in as you navigate — but only if the table is marked up correctly.</p></div>
+    ${ST('Table Navigation Commands')}
+    <div class="cgrid">
+      ${CC(['VO','⌘','T'],'Jump to next table on the page')}
+      ${CC(['VO','Shift','↓'],'Enter / interact with the table')}
+      ${CC(['VO','Shift','↑'],'Exit the table')}
+      ${CC(['VO','→'],'Move to next cell (right)')}
+      ${CC(['VO','←'],'Move to previous cell (left)')}
+      ${CC(['VO','↓'],'Move to cell below')}
+      ${CC(['VO','↑'],'Move to cell above')}
+    </div>
+    ${ST('Reading Context')}
+    <div class="cgrid">
+      ${CC(['VO','C'],'Read column header of current cell')}
+      ${CC(['VO','R'],'Read row header of current cell')}
+      ${CC(['VO','Shift','C'],'Read entire current column')}
+      ${CC(['VO','Shift','R'],'Read entire current row')}
+    </div>
+    ${ibox('tip','💡','When navigating a cell, VoiceOver says: <em>"Alice Johnson, Name column, row 2 of 4"</em>. This requires proper <code>&lt;th scope="col"&gt;</code> headers.')}
+    ${ST('Practice — Navigate this table with VoiceOver')}
+    <div class="tbl-wrap" style="margin-bottom:1rem">
+      <table class="dtbl" aria-label="Team members">
+        <caption>Team Members — find who is in the Design department</caption>
+        <thead><tr>
+          <th scope="col">Name</th>
+          <th scope="col">Department</th>
+          <th scope="col">Location</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Alice Johnson</td><td>Engineering</td><td>New York</td></tr>
+          <tr><td>Bob Martinez</td><td>Design</td><td>London</td></tr>
+          <tr><td>Carol Chen</td><td>Engineering</td><td>Berlin</td></tr>
+          <tr><td>David Kim</td><td>Design</td><td>Tokyo</td></tr>
+        </tbody>
+      </table>
+    </div>
+    ${voChecklist('l14',[
+      {id:'1', cmd:'VO+⌘+T',    label:'Use VO+⌘+T to jump directly to the table'},
+      {id:'2', cmd:'VO+Shift+↓', label:'Press VO+Shift+↓ to enter/interact with the table'},
+      {id:'3', cmd:'VO+→',       label:'Navigate right with VO+→ — hear the column header announced with each cell'},
+      {id:'4', cmd:'VO+↓',       label:'Navigate down with VO+↓ through a column'},
+      {id:'5', cmd:'VO+C',       label:'Press VO+C to hear the column header of your current cell'},
+      {id:'6', cmd:'VO+R',       label:'Press VO+R to hear the row header of your current cell'},
+      {id:'7', cmd:'VO+Shift+↑', label:'Exit the table with VO+Shift+↑'},
+    ])}
+    <button class="skip-link" onclick="skipEx()">Skip this exercise →</button>
+  </div>`;
+}
+
+// --- CH3 LESSONS ---
+function L15(c){
+  autoComplete(13);
+  c.innerHTML=`<div class="lcontent">
+    <h2>iOS VoiceOver — Setup & Basics</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 3 · Mobile Screen Readers</span><span class="mob-badge">📱 Use Your iPhone/iPad</span></div>
+    ${ibox('note','ℹ️','<strong>For this chapter, you\'ll need your actual iOS device.</strong> Mobile screen reader interactions cannot be simulated in a browser. Follow these instructions on your iPhone or iPad.')}
+    ${ST('Enabling VoiceOver')}
+    <div class="intro">
+      <p><strong>Method 1 — Settings:</strong><br>Settings → Accessibility → VoiceOver → Toggle on</p>
+      <p><strong>Method 2 — Shortcut (Recommended):</strong><br>Settings → Accessibility → Accessibility Shortcut → VoiceOver<br>Then <strong>triple-click</strong> the Side Button (or Home Button) to toggle.</p>
+      <p><strong>Method 3 — Siri:</strong><br>Say <em>"Hey Siri, turn on VoiceOver"</em></p>
+    </div>
+    ${ibox('warn','⚠️','When VoiceOver is on, <strong>all gestures change.</strong> A single tap now selects and reads an item. You need a <strong>double tap</strong> to activate it. This is disorienting at first — be patient!')}
+    ${ST('Core Touch Concepts')}
+    <div class="ggrid">
+      ${GC('👆','Single Tap','Selects an element and VoiceOver announces it. Does NOT activate it.')}
+      ${GC('👆👆','Double Tap','Activates (clicks) the currently selected element.')}
+      ${GC('👉','Swipe Right','Moves to the next accessible element on screen.')}
+      ${GC('👈','Swipe Left','Moves to the previous accessible element.')}
+    </div>
+    ${ST('Screen Curtain (Advanced)')}
+    <div class="intro"><p>Triple-tap with <strong>3 fingers</strong> to toggle the <strong>Screen Curtain</strong> — the screen goes completely black but VoiceOver continues working. Experienced blind users use this to save battery and maintain privacy.</p></div>
+    ${ST('Practice Exercise')}
+    <div class="intro"><p>Enable VoiceOver with the triple-click shortcut, then open Safari and navigate to any website. Try swiping right through elements, double-tapping a link to activate it, then triple-clicking to disable VoiceOver when done.</p></div>
+  </div>`;
+}
+
+function L16(c){
+  autoComplete(14);
+  c.innerHTML=`<div class="lcontent">
+    <h2>iOS VoiceOver — Gestures</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 3 · Mobile Screen Readers</span><span class="mob-badge">📱 Use Your iPhone/iPad</span>${dbadge('medium')}</div>
+    ${ST('Basic Navigation')}
+    <div class="ggrid">
+      ${GC('👉','Next Element','1-finger swipe right — move to next item')}
+      ${GC('👈','Previous Element','1-finger swipe left — move to previous item')}
+      ${GC('👆👆','Activate','Double tap anywhere — activates selected element')}
+      ${GC('✌️↕️','Scroll','3-finger swipe up/down to scroll the page')}
+    </div>
+    ${ST('Reading Gestures')}
+    <div class="ggrid">
+      ${GC('✌️👆','Read All','2-finger swipe up — reads from current element to end')}
+      ${GC('✌️👇','Read from Top','2-finger swipe down — reads from top of page')}
+      ${GC('✌️','Pause/Resume','2-finger single tap — pause or resume reading')}
+    </div>
+    ${ST('The VoiceOver Rotor')}
+    <div class="intro">
+      <p>The <strong>Rotor</strong> is VoiceOver's most powerful navigation tool. It works like a virtual dial you spin on the screen.</p>
+      <p><strong>To open:</strong> Place two fingers on screen and rotate them (like turning a dial — one clockwise, one counter-clockwise). VoiceOver announces the current rotor option.</p>
+      <p><strong>To use:</strong> Once a category is selected (e.g., Headings), swipe <strong>up or down with one finger</strong> to navigate by that element type.</p>
+    </div>
+    ${ST('Rotor Options')}
+    <div class="ggrid">
+      ${GC('🔤','Words / Characters','Read text word by word or letter by letter')}
+      ${GC('🔗','Links','Jump between all links on the page')}
+      ${GC('📋','Headings','Navigate between headings (H1, H2…)')}
+      ${GC('📝','Form Controls','Jump between inputs, buttons, and checkboxes')}
+    </div>
+    ${ST('Advanced Gestures')}
+    <div class="ggrid">
+      ${GC('🤏🤏','Magic Tap','2-finger double tap — context action (play/pause media, answer call)')}
+      ${GC('Z✌️','Escape / Back','Draw a Z with 2 fingers to dismiss dialogs or go back')}
+      ${GC('4️⃣👆','First Element','4-finger tap top half of screen — jump to first item')}
+      ${GC('4️⃣👇','Last Element','4-finger tap bottom half of screen — jump to last item')}
+    </div>
+    ${ibox('tip','💡','Practice: Enable VoiceOver, open a webpage, spin the rotor to "Headings", then swipe down with one finger to jump between headings. This is how power users navigate long pages!')}
+  </div>`;
+}
+
+function L17(c){
+  autoComplete(15);
+  c.innerHTML=`<div class="lcontent">
+    <h2>Android TalkBack — Setup & Basics</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 3 · Mobile Screen Readers</span><span class="mob-badge">📱 Use Your Android Device</span></div>
+    ${ibox('note','ℹ️','<strong>For this lesson, you\'ll need your actual Android device.</strong> TalkBack is pre-installed on most Android phones. UI paths vary slightly by manufacturer.')}
+    ${ST('Enabling TalkBack')}
+    <div class="intro">
+      <p><strong>Method 1 — Settings:</strong><br>Settings → Accessibility → TalkBack → Toggle on<br>(May be under "Vision", "Screen Reader", or "Installed Services")</p>
+      <p><strong>Method 2 — Volume Shortcut:</strong><br>Hold <strong>both Volume Up + Volume Down</strong> for 3 seconds. A confirmation dialog will appear.</p>
+      <p><strong>Method 3 — Google Assistant:</strong><br>Say <em>"Hey Google, turn on TalkBack"</em></p>
+    </div>
+    ${ibox('warn','⚠️','Like iOS VoiceOver, TalkBack changes all touch interactions. Dragging your finger now reads elements aloud. You must <strong>double tap</strong> to activate anything.')}
+    ${ST('Core Interaction Concepts')}
+    <div class="ggrid">
+      ${GC('☝️','Explore by Touch','Drag your finger around — TalkBack reads each item as you touch it')}
+      ${GC('☝️☝️','Activate','Double tap anywhere on screen to activate the focused item')}
+      ${GC('👉','Next Item','1-finger swipe right to move to next accessible element')}
+      ${GC('👈','Previous Item','1-finger swipe left to move to previous element')}
+    </div>
+    ${ST('Recognizing TalkBack is Active')}
+    <div class="intro"><p>When TalkBack is enabled you'll hear a chime and voice confirmation. Focused items are highlighted with a <strong>teal/green border</strong>. The top notification bar shows an accessibility icon.</p></div>
+    ${ST('Built-in TalkBack Tutorial')}
+    <div class="intro"><p>Android includes a guided tutorial. Access it via: <strong>Settings → Accessibility → TalkBack → TalkBack tutorial</strong>. This is the best way to learn the gestures hands-on.</p></div>
+  </div>`;
+}
+
+function L18(c){
+  autoComplete(16);
+  c.innerHTML=`<div class="lcontent">
+    <h2>Android TalkBack — Gestures</h2>
+    <div class="lmeta"><span class="badge bc">Chapter 3 · Mobile Screen Readers</span><span class="mob-badge">📱 Use Your Android Device</span>${dbadge('medium')}</div>
+    ${ST('Basic Navigation')}
+    <div class="ggrid">
+      ${GC('👉','Next Item','1-finger swipe right')}
+      ${GC('👈','Previous Item','1-finger swipe left')}
+      ${GC('☝️☝️','Activate','Double tap to click selected item')}
+      ${GC('✌️↕️','Scroll','2-finger swipe up or down to scroll')}
+    </div>
+    ${ST('Reading Gestures')}
+    <div class="ggrid">
+      ${GC('⬇️➡️','Read from Top','Swipe down then right — reads entire page from top')}
+      ${GC('➡️⬇️','Read from Here','Swipe right then down — reads from current position')}
+      ${GC('✌️','Pause Speech','Single tap with 2 fingers to stop TalkBack reading')}
+    </div>
+    ${ST('Reading Controls (like iOS Rotor)')}
+    <div class="intro">
+      <p>Swipe <strong>up then down</strong> (or <strong>down then up</strong>) with one finger to cycle through Reading Controls options. Then swipe up or down to navigate by that type.</p>
+    </div>
+    <div class="ggrid">
+      ${GC('🔤','Characters/Words','Navigate text character by character or word by word')}
+      ${GC('📋','Headings','Jump between page headings')}
+      ${GC('🔗','Links','Jump between links')}
+      ${GC('📝','Controls','Jump between interactive controls')}
+    </div>
+    ${ST('System Navigation Gestures')}
+    <div class="ggrid">
+      ${GC('⬇️👈','Back','Swipe down then left — go back')}
+      ${GC('⬆️👈','Home','Swipe up then left — go home')}
+      ${GC('👈⬆️','Recents','Swipe left then up — recent apps')}
+      ${GC('⬇️👉','TalkBack Menu','Swipe down then right — global context menu')}
+    </div>
+    ${ibox('tip','💡','Practice: Enable TalkBack, open Google Chrome, navigate to a news site and use Reading Controls set to "Headings" to quickly scan the page structure.')}
+    <div class="intro" style="background:linear-gradient(135deg,var(--pri-l),#ede9fe);border-color:var(--pri);margin-top:1.5rem">
+      <p style="font-size:1.1rem;font-weight:800;margin-bottom:.4rem">🎓 Congratulations! You've finished the tutorial!</p>
+      <p>You now have a solid foundation in keyboard navigation, macOS VoiceOver, and mobile screen readers. The best practice: <strong>browse websites using only your keyboard for 10 minutes a day.</strong></p>
+      <p style="margin-top:.5rem">For deeper learning, explore the <a href="https://www.w3.org/WAI/fundamentals/" target="_blank" rel="noopener" style="color:var(--pri-d)">W3C Web Accessibility Fundamentals</a> and the <a href="https://webaim.org" target="_blank" rel="noopener" style="color:var(--pri-d)">WebAIM website</a>.</p>
+    </div>
+  </div>`;
+}
+
+// ===== CORE APP =====
+function renderLesson(idx){
+  clearKH();
+  cur=idx;exDone=false;
+  const L=lessons[idx];
+  const body=document.getElementById('lbody');
+  body.innerHTML='';
+  const ch=chapters.find(c=>c.id===L.ch);
+  document.getElementById('hch').textContent=`Chapter ${L.ch} · ${ch.title}`;
+  document.getElementById('ht').textContent=L.title;
+  document.getElementById('hp').textContent=`Lesson ${idx+1} of ${lessons.length}`;
+  document.getElementById('bprev').disabled=idx===0;
+  document.getElementById('bnext').disabled=idx===lessons.length-1;
+  L.r(body);
+  updateUI();
+  document.getElementById('main').scrollTo(0,0);
+}
+
+function navLesson(dir){
+  const ni=cur+dir;
+  if(ni<0||ni>=lessons.length)return;
+  if(!exDone&&lessons[cur].r!==L1){
+    // allow navigation but don't auto-complete exercises
+  }
+  done.add(cur);
+  renderLesson(ni);
+}
+
+function goTo(idx){
+  done.add(cur);
+  renderLesson(idx);
+  if(window.innerWidth<=768)document.getElementById('sidebar').classList.remove('open');
+}
+
+function updateUI(){
+  // sidebar
+  const nav=document.getElementById('snav');
+  let html='',lastCh=null;
+  lessons.forEach((L,i)=>{
+    if(L.ch!==lastCh){
+      lastCh=L.ch;
+      const ch=chapters.find(c=>c.id===L.ch);
+      html+=`<div class="chdr">${ch.icon} ${ch.title}</div>`;
+    }
+    const isA=i===cur, isDone=done.has(i);
+    html+=`<button class="litem${isA?' active':''}${isDone?' done':''}" onclick="goTo(${i})" role="listitem" aria-current="${isA?'page':'false'}">
+      <span class="lstatus">${isDone?'✓':isA?'▶':''}</span>
+      <span class="ltext">${L.title}</span>
+    </button>`;
+  });
+  nav.innerHTML=html;
+  // progress
+  const total=lessons.length, ndone=done.size, pct=Math.round(ndone/total*100);
+  document.getElementById('pbar').style.width=pct+'%';
+  document.getElementById('plbl').textContent=`${ndone} / ${total}`;
+}
+
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  if(window.innerWidth<=768)sb.classList.toggle('open');
+  else sb.classList.toggle('collapsed');
+}
+
+function startTutorial(){
+  document.getElementById('welcome').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  updateUI();
+  renderLesson(0);
+  document.getElementById('main').focus();
+}
+</script>
+</body>
+</html>
